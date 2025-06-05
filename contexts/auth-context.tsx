@@ -4,7 +4,6 @@ import type React from "react"
 
 import { createContext, useEffect, useState } from "react"
 import type { User } from "@supabase/supabase-js"
-import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
 interface AuthContextType {
@@ -48,13 +47,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error
   }
 
-  return <AuthContext.Provider value={{ user, loading, signInWithEmail }}>{children}</AuthContext.Provider>
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    // Removed router.push redirect
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, loading, signInWithEmail, signInWithGoogle, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  // Removed router dependency
 
   useEffect(() => {
     async function fetchUser() {
@@ -70,18 +78,14 @@ export function useAuth() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null)
 
-      // Redirect based on auth state
-      if (event === "SIGNED_IN") {
-        router.push("/")
-      } else if (event === "SIGNED_OUT") {
-        router.push("/login")
-      }
+      // Removed all redirects - just update the user state
+      // Your components can handle the UI changes based on user state
     })
 
     return () => {
       authListener.subscription.unsubscribe()
     }
-  }, [supabase, router])
+  }, []) // Removed supabase and router dependencies
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -95,7 +99,7 @@ export function useAuth() {
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    router.push("/login")
+    // Removed router.push redirect
   }
 
   return {
@@ -106,4 +110,3 @@ export function useAuth() {
     signInWithGoogle,
   }
 }
-

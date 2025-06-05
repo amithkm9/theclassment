@@ -21,6 +21,13 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  // Make sure no redirects are configured here
+  async redirects() {
+    return []
+  },
+  async rewrites() {
+    return []
+  },
 }
 
 mergeConfig(nextConfig, userConfig)
