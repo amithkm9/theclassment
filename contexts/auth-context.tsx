@@ -28,28 +28,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signInWithEmail = async (email: string) => {
+    // Removed emailRedirectTo to prevent any redirects
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-      },
     })
     if (error) throw error
   }
 
   const signInWithGoogle = async () => {
+    // Removed redirectTo to prevent any redirects
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
     })
     if (error) throw error
   }
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    // Removed router.push redirect
   }
 
   return (
@@ -62,7 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  // Removed router dependency
 
   useEffect(() => {
     async function fetchUser() {
@@ -77,29 +71,24 @@ export function useAuth() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null)
-
-      // Removed all redirects - just update the user state
-      // Your components can handle the UI changes based on user state
+      // No redirects - just update state
     })
 
     return () => {
       authListener.subscription.unsubscribe()
     }
-  }, []) // Removed supabase and router dependencies
+  }, [])
 
   const signInWithGoogle = async () => {
+    // Removed redirectTo to prevent any redirects
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
     })
     if (error) throw error
   }
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    // Removed router.push redirect
   }
 
   return {

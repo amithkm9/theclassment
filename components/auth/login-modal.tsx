@@ -28,11 +28,9 @@ export function LoginModal({
     e.preventDefault()
     try {
       setLoading(true)
+      // Removed emailRedirectTo to prevent redirects
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
       })
       if (error) throw error
       setShowOtpInput(true)
@@ -138,4 +136,3 @@ export function LoginModal({
     </Dialog>
   )
 }
-
